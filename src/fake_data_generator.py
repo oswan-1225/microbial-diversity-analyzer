@@ -34,3 +34,4 @@ for taxon in effected_taxa:
 df.to_csv('data/raw/fake_otu_table.csv')
 print(df.head())
 print(f"\nSaved {df.shape[0]} samples and {df.shape[1]-1} taxa to 'data/raw/fake_otu_table.csv'.")
+# Make sure to input your own path to the data folder if you want to save it elsewhere.
