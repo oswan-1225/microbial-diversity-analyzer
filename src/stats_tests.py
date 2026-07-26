@@ -34,3 +34,28 @@ def compare_groups(summary_df: pd.DataFrame, metric: str, group_col: str = "grou
         "statistic": stat,
         "p_value": p_value
     }
+
+def compare_multiple_groups(summary_df: pd.DataFrame, metric: str, control_label: str, group_col: str = "group") -> pd.DataFrame:
+    """
+    Function that allows for the comparison of any number of "treatment" groups 
+    with the "control" group using the Mann-Whitney U test.
+    """
+
+    ### defines all groups vs the treatment groups
+    all_groups = summary_df[group_col].unique()
+    treatment_groups = [group for group in all_groups if group != control_label]
+
+    # Iterates through each treatment group and compares it to the control group using the compare_groups function
+    results = []
+    for treatment_group in treatment_groups:
+        subset = summary_df[summary_df[group_col].isin([control_label, treatment_group])]
+        result = compare_groups(subset, metric, group_col)
+        results.append({'treatment': treatment_group, 'statistic': result['statistic'], 'p_value': result['p_value']})
+
+    # Bonferroni correction for multiple comparisons
+    num_comparisons = len(treatment_groups)
+    for i in range(len(results)):
+        results[i]['corrected_p_value'] = min(results[i]['p_value'] * num_comparisons, 1.0)
+        results[i]['significant'] = results[i]['corrected_p_value'] < 0.05
+
+    return pd.DataFrame(results)

@@ -53,9 +53,9 @@ def summarize_diversity(df: pd.DataFrame) -> pd.DataFrame:
     shannon_results = count_data.apply(shannon_diversity, axis=1)
 
     # Create a new DataFrame to hold the results
-    results_df = pd.DataFrame({
+    summary_df = pd.DataFrame({
         'group': df['group'],
         'species_richness': richness_results,
         'shannon_diversity': shannon_results
     })
-    return results_df
+    return summary_df
