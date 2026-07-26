@@ -1,10 +1,11 @@
 import pandas as pd
 import os
+from typing import Optional
 from diversity_analyzer import summarize_diversity
 from stats_tests import compare_multiple_groups
 from visualize import multi_group_boxplot
 
-def run_pipeline(input_path: str, output_dir: str, control_label: str, group_col: str = 'group', metrics: list = None) -> dict:
+def run_pipeline(input_path: str, output_dir: str, control_label: str, group_col: str = 'group', metrics: Optional[list] = None) -> dict:
     '''
     Runs a full pipeline analysis for a single statistical test comparing a control group to multiple treatment groups.
     
