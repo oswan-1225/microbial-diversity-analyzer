@@ -33,20 +33,21 @@ def shannon_diversity(sample_counts: list | pd.Series) -> float:
     proportions = proportions[proportions > 0]
     return -np.sum(proportions * np.log(proportions))
 
-def summarize_diversity(df: pd.DataFrame) -> pd.DataFrame:
+def summarize_diversity(df: pd.DataFrame, group_col: str = 'group') -> pd.DataFrame:
     """
     Takes the OTU table and calculates species richness and Shannon diversity for each sample
     Then returns a new DataFrame with the results.
 
     Parameters:
         df: pd Dataframe containing the OTU table with samples as rows and taxa as columns. The first column should be 'group' indicating the sample group.
+        group_col: The name of the column containing the group information. Default is 'group'.
 
     Returns:
         pd.DataFrame: A new DataFrame with columns for sample ID, group, species richness, and Shannon diversity.
     """
 
     #Separate metadata from count data
-    taxa_columns = df.columns[df.columns != 'group'] # Ignores a column named 'group' which is assumed to be the first column
+    taxa_columns = df.columns[df.columns != group_col] # Ignores a column named 'group' which is assumed to be the first column
     count_data = df[taxa_columns]
 
     richness_results = count_data.apply(species_richness, axis=1)
@@ -54,7 +55,7 @@ def summarize_diversity(df: pd.DataFrame) -> pd.DataFrame:
 
     # Create a new DataFrame to hold the results
     summary_df = pd.DataFrame({
-        'group': df['group'],
+        'group': df[group_col],
         'species_richness': richness_results,
         'shannon_diversity': shannon_results
     })
