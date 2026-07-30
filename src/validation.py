@@ -24,7 +24,7 @@ def validate_input_data(df: pd.DataFrame, group_col: str, control_label: str) ->
     count_data = df[taxa_columns]
 
     # Fourth check: all count columns are numeric
-    non_numeric = count_data.select_dtypes(exclude='number').columns
+    non_numeric = count_data.select_dtypes(exclude='number').columns.tolist()
     if non_numeric:
         raise ValueError(f"The following count columns are not numeric: {list(non_numeric)}")
 

@@ -34,6 +34,9 @@ def run_pipeline(input_path: str, output_dir: str, control_label: str, group_col
     count_data = df[taxa_columns] 
     count_data = check_missing_values(count_data, on_missing=on_missing)
 
+    df = df.loc[count_data.index]
+    df[taxa_columns] = count_data
+
     summary = summarize_diversity(df, group_col=group_col)
     summary.to_csv(os.path.join(output_dir, 'summarized_data.csv'), index=False) # Saves the summarized diversity data to a CSV file
 
