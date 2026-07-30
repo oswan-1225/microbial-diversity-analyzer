@@ -33,7 +33,7 @@ def shannon_diversity(sample_counts: list | pd.Series) -> float:
     proportions = proportions[proportions > 0]
     return -np.sum(proportions * np.log(proportions))
 
-def summarize_diversity(df: pd.DataFrame, group_col: str = 'group') -> pd.DataFrame:
+def summarize_diversity(df: pd.DataFrame, group_col: str = 'group', exclude_cols: list | None = None) -> pd.DataFrame:
     """
     Takes the OTU table and calculates species richness and Shannon diversity for each sample
     Then returns a new DataFrame with the results.
@@ -41,13 +41,17 @@ def summarize_diversity(df: pd.DataFrame, group_col: str = 'group') -> pd.DataFr
     Parameters:
         df: pd Dataframe containing the OTU table with samples as rows and taxa as columns. The first column should be 'group' indicating the sample group.
         group_col: The name of the column containing the group information. Default is 'group'.
+        exclude_cols: List of columns to exclude from the diversity calculations (e.g., metadata columns). Default is None.
 
     Returns:
         pd.DataFrame: A new DataFrame with columns for sample ID, group, species richness, and Shannon diversity.
     """
+    if exclude_cols is None:
+        exclude_cols = []
 
     #Separate metadata from count data
-    taxa_columns = df.columns[df.columns != group_col] # Ignores a column named 'group' which is assumed to be the first column
+    non_taxa_cols = [group_col] + exclude_cols
+    taxa_columns = df.columns[~df.columns.isin(non_taxa_cols)] # Ignores a column named 'group' which is assumed to be the first column
     count_data = df[taxa_columns]
 
     richness_results = count_data.apply(species_richness, axis=1)
