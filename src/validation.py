@@ -1,11 +1,14 @@
 import pandas as pd
 
-def validate_input_data(df: pd.DataFrame, group_col: str, control_label: str) -> None:
+def validate_input_data(df: pd.DataFrame, group_col: str, control_label: str, exclude_cols: list | None = None) -> None:
     """
     Validates the assumptions about a loaded OTU table.
     Raises ValueError immediately if requirements are violated.
     These are checks with no reasonable default
     """
+    if exclude_cols is None:
+        exclude_cols = []
+
     # First check: group_col exists
     if group_col not in df.columns:
         raise ValueError(f"'{group_col}' column is missing from the DataFrame.")
@@ -19,8 +22,12 @@ def validate_input_data(df: pd.DataFrame, group_col: str, control_label: str) ->
     if len(unique_groups) < 2:
         raise ValueError(f"At least two groups are required in the '{group_col}' column. Found only: {unique_groups}")
 
+    if exclude_cols is None:
+        exclude_cols = []
+
     # Remaining checks operate on count/taxa columns only
-    taxa_columns = df.columns[df.columns != group_col]
+    non_taxa_cols = [group_col] + exclude_cols
+    taxa_columns = df.columns[~df.columns.isin(non_taxa_cols)]
     count_data = df[taxa_columns]
 
     # Fourth check: all count columns are numeric

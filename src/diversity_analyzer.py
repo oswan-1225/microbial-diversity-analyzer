@@ -59,7 +59,7 @@ def summarize_diversity(df: pd.DataFrame, group_col: str = 'group', exclude_cols
 
     # Create a new DataFrame to hold the results
     summary_df = pd.DataFrame({
-        'group': df[group_col],
+        group_col: df[group_col],
         'species_richness': richness_results,
         'shannon_diversity': shannon_results
     })

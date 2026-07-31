@@ -6,7 +6,7 @@ from stats_tests import compare_multiple_groups
 from visualize import multi_group_boxplot
 from validation import validate_input_data, check_missing_values
 
-def run_pipeline(input_path: str, output_dir: str, control_label: str, group_col: str = 'group', metrics: Optional[list] = None, on_missing: str= 'error') -> dict:
+def run_pipeline(input_path: str, output_dir: str, control_label: str, group_col: str = 'group', metrics: Optional[list] = None, on_missing: str= 'error', exclude_cols: Optional[list] = None, index_col: Optional[int] = 0) -> dict:
     '''
     Runs a full pipeline analysis for a single statistical test comparing a control group to multiple treatment groups.
     
@@ -25,10 +25,10 @@ def run_pipeline(input_path: str, output_dir: str, control_label: str, group_col
     if metrics is None:
         metrics = ['species_richness', 'shannon_diversity'] # Leaves open space for future metrics to be added
 
-    df = pd.read_csv(input_path, index_col = 0) # reads the input CSV file into a DataFrame, using the first column as the index (sample IDs)
+    df = pd.read_csv(input_path, index_col = index_col) # reads the input CSV file into a DataFrame, using the first column as the index (sample IDs)
     os.makedirs(output_dir, exist_ok=True) # Creates the output directory if it doesn't exist
 
-    validate_input_data(df, group_col=group_col, control_label=control_label) # Validates the input data for required columns and values
+    validate_input_data(df, group_col=group_col, control_label=control_label, exclude_cols=exclude_cols) # Validates the input data for required columns and values
 
     taxa_columns = df.columns[df.columns != group_col] # Identifies the columns that contain count data (taxa) by excluding the group column
     count_data = df[taxa_columns] 
@@ -37,7 +37,7 @@ def run_pipeline(input_path: str, output_dir: str, control_label: str, group_col
     df = df.loc[count_data.index]
     df[taxa_columns] = count_data
 
-    summary = summarize_diversity(df, group_col=group_col)
+    summary = summarize_diversity(df, group_col=group_col, exclude_cols=exclude_cols) # Calculates diversity metrics for each sample and returns a summary DataFrame
     summary.to_csv(os.path.join(output_dir, 'summarized_data.csv'), index=False) # Saves the summarized diversity data to a CSV file
 
     all_stats = {}
