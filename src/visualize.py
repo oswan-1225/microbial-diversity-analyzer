@@ -46,7 +46,7 @@ def p_value_to_asterisks(p_value: float) -> str:
     else:
         return 'ns'  # Not significant
 
-def multi_group_boxplot(summary_df: pd.DataFrame, stats_df: pd.DataFrame, metric: str, control_label: str, group_col: str = "group", save_path: Optional[str] = None) -> None:
+def multi_group_boxplot(summary_df: pd.DataFrame, stats_df: pd.DataFrame, metric: str, control_label: str, group_col: str = "group", save_path: Optional[str] = None, richness_threshold: Optional[float] = None) -> None:
 
     """
     Creates a boxplot of all groups with p value annotations
@@ -64,6 +64,7 @@ def multi_group_boxplot(summary_df: pd.DataFrame, stats_df: pd.DataFrame, metric
     y_step = (y_max - summary_df[metric].min()) * 0.1 # spacing between annotations
     current_height = y_max + y_step
 
+    # Find the index of the control group in the order
     control_x = group_order.index((str(control_label)))
 
     for _, row in stats_df.iterrows():
@@ -79,7 +80,11 @@ def multi_group_boxplot(summary_df: pd.DataFrame, stats_df: pd.DataFrame, metric
 
         current_height += y_step 
 
-    plt.title(f"{metric.replace('_', ' ').title()} by Group")
+    title = f"{metric.replace('_', ' ').title()} by Group"
+    if metric == "species_richness" and richness_threshold is not None:
+        title += f" (Threshold > {richness_threshold})"
+
+    plt.title(title)
     plt.xlabel('Group')
     plt.ylabel(metric.replace('_', ' ').title())
     plt.tight_layout()

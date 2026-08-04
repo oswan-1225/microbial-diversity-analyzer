@@ -1,18 +1,22 @@
 import numpy as np
 import pandas as pd
 
-def species_richness(sample_counts: list | pd.Series) -> int:
+def species_richness(sample_counts: list | pd.Series, threshold: float = 0.0) -> int:
     """
-    Calculate the number of taxa present (>0 counts) in a sample.
+    Calculate the number of taxa present (above threshold) in a sample.
 
-    Parameters: 
-        samples_counts: pandas Series or array of counts for one sample
+    Parameters:
+        sample_counts: pandas Series or array of counts/abundances for one sample
+        threshold: minimum value for a taxon to be considered "present".
+            Default 0.0 preserves original behavior (any nonzero count).
+            For relative-abundance data, consider a small positive value
+            (e.g. 0.0001) to exclude noise-level detections.
 
     Returns:
-        int: Number of taxa present in the sample with count greater than zero.
+        int: number of taxa with value > threshold
     """
-    sample_counts = pd.Series(sample_counts)  # Ensure input is a pandas Series for consistency
-    return np.sum(sample_counts > 0)
+    sample_counts = pd.Series(sample_counts)
+    return np.sum(sample_counts > threshold)
 
 def shannon_diversity(sample_counts: list | pd.Series) -> float:
     """
@@ -33,7 +37,7 @@ def shannon_diversity(sample_counts: list | pd.Series) -> float:
     proportions = proportions[proportions > 0]
     return -np.sum(proportions * np.log(proportions))
 
-def summarize_diversity(df: pd.DataFrame, group_col: str = 'group', exclude_cols: list | None = None) -> pd.DataFrame:
+def summarize_diversity(df: pd.DataFrame, group_col: str = 'group', exclude_cols: list | None = None, richness_threshold: float = 0.0) -> pd.DataFrame:
     """
     Takes the OTU table and calculates species richness and Shannon diversity for each sample
     Then returns a new DataFrame with the results.
@@ -42,6 +46,7 @@ def summarize_diversity(df: pd.DataFrame, group_col: str = 'group', exclude_cols
         df: pd Dataframe containing the OTU table with samples as rows and taxa as columns. The first column should be 'group' indicating the sample group.
         group_col: The name of the column containing the group information. Default is 'group'.
         exclude_cols: List of columns to exclude from the diversity calculations (e.g., metadata columns). Default is None.
+        Richness_threshold: mnimum value for a taxon to count as "present" in the species_richness calculation. Default is 0.0 use a psmall positive value for relative-abundance data to exclude noise-level detections.
 
     Returns:
         pd.DataFrame: A new DataFrame with columns for sample ID, group, species richness, and Shannon diversity.
@@ -54,7 +59,7 @@ def summarize_diversity(df: pd.DataFrame, group_col: str = 'group', exclude_cols
     taxa_columns = df.columns[~df.columns.isin(non_taxa_cols)] # Ignores a column named 'group' which is assumed to be the first column
     count_data = df[taxa_columns]
 
-    richness_results = count_data.apply(species_richness, axis=1)
+    richness_results = count_data.apply(lambda row: species_richness(row, threshold=richness_threshold), axis=1)
     shannon_results = count_data.apply(shannon_diversity, axis=1)
 
     # Create a new DataFrame to hold the results

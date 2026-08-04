@@ -13,6 +13,7 @@ def main():
     parser.add_argument("--on_missing", choices=["error", "fill_zero", "drop_rows"], default="error", help="How to handle missing data")
     parser.add_argument("--exclude_cols", nargs="+", default=None, help="Additional metadata columns to exclude (not taxa data)")
     parser.add_argument("--no_index_col", action="store_true", help="Pass this if your CSV has no sample-ID index column (all columns are data)")
+    parser.add_argument("--richness_threshold", type=float, default=0.0, help="Minimum value for a taxon to count as present (use >0 for relative-abundance data)")
 
     args = parser.parse_args()
     
@@ -26,6 +27,7 @@ def main():
         on_missing=args.on_missing,
         exclude_cols=args.exclude_cols,
         index_col=None if args.no_index_col else args.index_col,
+        richness_threshold=args.richness_threshold
     )
 
 if __name__ == "__main__":

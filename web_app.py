@@ -162,6 +162,17 @@ selected_metrics = st.sidebar.multiselect(
     default=metric_options,
 )
 
+richness_threshold = st.sidebar.number_input(
+    "Species richness threshold",
+    min_value=0.0,
+    value=0.0,
+    step=0.0001,
+    format="%.5f",
+    help="A taxon counts as 'present' if its value exceeds this threshold. "
+         "Use 0.0 for raw count data. For relative-abundance data with tiny "
+         "noise-level values, try something like 0.0001."
+)
+
 missing_policy = st.sidebar.selectbox(
     "Missing-value policy",
     options=["error", "fill_zero", "drop_rows"],
@@ -234,6 +245,7 @@ with tempfile.TemporaryDirectory(prefix="microbial_diversity_") as temp_dir:
             on_missing=missing_policy,
             exclude_cols=exclude_cols,
             index_col=index_col_to_use,
+            richness_threshold=richness_threshold,
         )
     except Exception as exc:
         st.error(f"Analysis failed: {exc}")
@@ -261,6 +273,7 @@ with tempfile.TemporaryDirectory(prefix="microbial_diversity_") as temp_dir:
         st.write(f"**Metrics:** {', '.join(selected_metrics)}")
         st.write(f"**Missing-value policy:** {missing_policy}")
         st.write(f"**Excluded columns:** {', '.join(exclude_cols) if exclude_cols else 'None'}")
+        st.write(f"**Richness threshold:** {richness_threshold}")
 
     st.subheader("Metric results")
     metric_tabs = st.tabs([metric.replace("_", " ").title() for metric in selected_metrics])

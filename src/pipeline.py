@@ -6,7 +6,7 @@ from stats_tests import compare_multiple_groups
 from visualize import multi_group_boxplot
 from validation import validate_input_data, check_missing_values
 
-def run_pipeline(input_path: str, output_dir: str, control_label: str, group_col: str = 'group', metrics: Optional[list] = None, on_missing: str= 'error', exclude_cols: Optional[list] = None, index_col: Optional[int] = 0) -> dict:
+def run_pipeline(input_path: str, output_dir: str, control_label: str, group_col: str = 'group', metrics: Optional[list] = None, on_missing: str= 'error', exclude_cols: Optional[list] = None, index_col: Optional[int] = 0, richness_threshold: float = 0.0) -> dict:
     '''
     Runs a full pipeline analysis for a single statistical test comparing a control group to multiple treatment groups.
     
@@ -37,7 +37,7 @@ def run_pipeline(input_path: str, output_dir: str, control_label: str, group_col
     df = df.loc[count_data.index]
     df[taxa_columns] = count_data
 
-    summary = summarize_diversity(df, group_col=group_col, exclude_cols=exclude_cols) # Calculates diversity metrics for each sample and returns a summary DataFrame
+    summary = summarize_diversity(df, group_col=group_col, exclude_cols=exclude_cols, richness_threshold=richness_threshold) # Calculates diversity metrics for each sample and returns a summary DataFrame
     summary.to_csv(os.path.join(output_dir, 'summarized_data.csv'), index=False) # Saves the summarized diversity data to a CSV file
 
     all_stats = {}
@@ -45,7 +45,8 @@ def run_pipeline(input_path: str, output_dir: str, control_label: str, group_col
         stats_results = compare_multiple_groups(summary, metric=metric, control_label=control_label, group_col=group_col)
 
         plot_path = os.path.join(output_dir, f"{metric}_boxplot.png")
-        multi_group_boxplot(summary, stats_results, metric=metric, control_label=control_label, group_col=group_col, save_path=plot_path)
+        plot_threshold = richness_threshold if metric == "species_richness" else None
+        multi_group_boxplot(summary, stats_results, metric=metric, control_label=control_label, group_col=group_col, save_path=plot_path, richness_threshold=plot_threshold) # Creates and saves a boxplot for the specified diversity metric with p-value annotations
 
         stats_results.to_csv(os.path.join(output_dir, f"{metric}_stats_results.csv"), index=False) # Saves the statistical results to a CSV file
         all_stats[metric] = stats_results
