@@ -64,10 +64,10 @@ def multi_group_boxplot(summary_df: pd.DataFrame, stats_df: pd.DataFrame, metric
     y_step = (y_max - summary_df[metric].min()) * 0.1 # spacing between annotations
     current_height = y_max + y_step
 
-    control_x = group_order.index(control_label)
+    control_x = group_order.index((str(control_label)))
 
     for _, row in stats_df.iterrows():
-        treatment_x = group_order.index(row['treatment'])
+        treatment_x = group_order.index(str(row['treatment']))
         asterisks = p_value_to_asterisks(row['corrected_p_value'])
 
         x1, x2 = control_x, treatment_x

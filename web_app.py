@@ -125,7 +125,9 @@ if use_first_column_as_index == "Treat it as sample IDs":
     if preview_df[first_column].is_unique:
         index_col_to_use = 0
     else:
-        st.sidebar.warning("The first column contains duplicate values, so it will be treated as data instead of sample IDs.")
+        st.sidebar.warning(f"The first column ('{first_column}') has repeated values, so it can't be used as "
+    "a unique sample ID. It will be treated as a regular data column instead — "
+    "make sure to exclude it below if it's not taxa count data.")
 
 
 group_options = ["-- Select a column --"] + list(preview_df.columns)
