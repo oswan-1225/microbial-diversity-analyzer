@@ -7,9 +7,11 @@ from typing import Any
 import pandas as pd
 import streamlit as st
 
+
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 from pipeline import run_pipeline
-
+from relabeling import apply_relabeling
 
 st.set_page_config(
     page_title="Microbial Diversity Analyzer",
@@ -142,6 +144,25 @@ if group_col is None:
     st.info("Select a group column in the sidebar to continue.")
     st.stop()
 
+st.sidebar.subheader("Relabeling (optional)")
+relabel_column = st.sidebar.selectbox(
+    "Column to relabel",
+    options=["-- None --"] + list(preview_df.columns),
+    index=0,
+    help="If a column uses coded values (e.g. 0/1/2), give them readable names here."
+)
+
+relabel_mapping = {}
+if relabel_column != "-- None --":
+    unique_vals = preview_df[relabel_column].dropna().unique().tolist()
+    st.sidebar.caption(f"Enter new labels for values in '{relabel_column}':")
+    for val in unique_vals:
+        new_label = st.sidebar.text_input(f"'{val}' →", value=str(val), key=f"relabel_{relabel_column}_{val}")
+        if new_label != str(val):
+            relabel_mapping[val] = new_label
+
+    if relabel_mapping:
+        preview_df = apply_relabeling(preview_df.copy(), relabel_column, relabel_mapping)
 
 group_values = _format_value_options(preview_df[group_col])
 if group_values:
