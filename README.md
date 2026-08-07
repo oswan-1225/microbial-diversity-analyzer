@@ -73,14 +73,14 @@ microbial-diversity-analyzer/
 │   ├── visualize.py            # annotated boxplot generation
 │   ├── validation.py           # input validation, missing-value handling
 │   ├── relabeling.py           # decode coded categorical columns
-│   └── pipeline.py             # orchestrates the full analysis
-├── tests/                  # pytest test suite
-└── docs/                  # example plots for this README
+│   └── pipeline.py             # full pipeline orchestration
+├── tests/                  # simple suite of tests.
+└── docs/                  # example figure
 ```
 
 ## Design notes
 
-- **Missing values are never silently guessed.** By default, the pipeline refuses to run if it finds NaN values, and requires you to explicitly choose `fill_zero` or `drop_rows` — since what a missing value *means* (undetected vs. failed measurement) depends on your data and isn't something the tool should assume.
+- **Missing values are never silently guessed.** By default, the pipeline refuses to run if it finds NaN values, and requires you to explicitly choose `fill_zero` or `drop_rows` since what a missing value *means* (undetected vs. failed measurement) depends on your data and isn't something the tool should assume.
 
 - **Species richness assumes raw counts by default.** Relative-abundance data (proportions, not integer reads) can contain extremely small nonzero "noise" values that shouldn't count as real detections. Use `--richness_threshold` to set a meaningful cutoff for this kind of data.
 
