@@ -80,6 +80,8 @@ def multi_group_boxplot(summary_df: pd.DataFrame, stats_df: pd.DataFrame, metric
 
         current_height += y_step 
 
+    plt.ylim(top=current_height + y_step)
+
     title = f"{metric.replace('_', ' ').title()} by Group"
     if metric == "species_richness" and richness_threshold is not None:
         title += f" (Threshold > {richness_threshold})"

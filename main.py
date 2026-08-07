@@ -1,5 +1,13 @@
 import argparse
+import os
+import sys
+import tempfile
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 from pipeline import run_pipeline
+from relabeling import parse_relabel_arg, apply_relabeling
+import pandas as pd
+
 
 def main():
     parser = argparse.ArgumentParser(description="Analyze microbial diversity data across experimental groups.")
@@ -14,12 +22,23 @@ def main():
     parser.add_argument("--exclude_cols", nargs="+", default=None, help="Additional metadata columns to exclude (not taxa data)")
     parser.add_argument("--no_index_col", action="store_true", help="Pass this if your CSV has no sample-ID index column (all columns are data)")
     parser.add_argument("--richness_threshold", type=float, default=0.0, help="Minimum value for a taxon to count as present (use >0 for relative-abundance data)")
+    parser.add_argument("--relabel", default=None, help="Relabel a column's values, e.g. 'Diet:0=LFPP,1=Western'")
 
     args = parser.parse_args()
-    
+
+    input_path = args.input
+
+    if args.relabel:
+        column, mapping = parse_relabel_arg(args.relabel)
+        df = pd.read_csv(input_path, index_col=None if args.no_index_col else args.index_col)
+        df = apply_relabeling(df, column, mapping)
+
+        temp_file = tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False)
+        df.to_csv(temp_file.name, index=not args.no_index_col)
+        input_path = temp_file.name
 
     run_pipeline(
-        input_path=args.input,
+        input_path=input_path,
         control_label=args.control,
         output_dir=args.output,
         group_col=args.group_col,

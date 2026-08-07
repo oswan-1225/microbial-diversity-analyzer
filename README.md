@@ -1,14 +1,22 @@
-# microbial-diversity-analyzer-
-Tool for analyzing large volume microbial sequence data.
+## Microbial Diversity Analyzer
 
-# Microbial Diversity Analyzer
+A Python pipeline for analyzing microbial community diversity from abundance data. The pipeline computes alpha diversity metrics and generates detailed figures via an easy to use streamlit interface.
 
-Tools for analyzing microbial sequence data
+## Example Usage
 
-# Status
+Run against real published mouse gut microbiome data (Turnbaugh et al., 2009). comparing diet groups against an LFPP control diet.
 
-Very Early Development, starting with loading data and basic diversity metrics
+![Shannon diversity boxplot](docs/example_shannon_boxplot.png)
 
-# Background
+## Installation
 
-Project inspired by undergraduate research work in microbial community research.
+```bash
+git clone gttps://github.com/oswan-1225/microbial-diversity-analyzer.git
+cd microbial-diversity-analyzer
+pip install -r requirements.txt
+```
+
+## Quickstart (CLI)
+
+```bash
+python 
